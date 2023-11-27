@@ -1,4 +1,8 @@
 
+ Input:
+
+ Output:
+
 
 -----------
 Moscow
@@ -17,3 +21,4 @@ Khabarovsk
 10:00
 
 Trip time: 12:32
+
