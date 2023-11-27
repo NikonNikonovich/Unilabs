@@ -50,6 +50,12 @@ struct Time
             return false;
         return true;
     }
+    Time get_time(std::string str)
+    {
+        h = std::stoi(str.substr(0, 2));
+        m = std::stoi(str.substr(3, 2));
+        return *this;
+    }
     friend std::ostream& operator<< (std::ostream& out, const Time& t)
     {
         out << std::setfill('0') << std::setw(2) << t.h << ':' 
@@ -98,13 +104,6 @@ bool chek(std::istream& in, std::string& str)
             return false;
     return true;
 }
-Time get_time(std::string str)
-{
-    Time t;
-    t.h = std::stoi(str.substr(0, 2));
-    t.m = std::stoi(str.substr(3, 2));
-    return t;
-}
 std::istream& operator>> (std::istream& in, Trip& tr)
 {
     bool krit = true;
@@ -118,7 +117,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
 
             if (!chek(in, str))
                 throw inv_time;
-            tr.T1 = get_time(str);
+            tr.T1.get_time(str);
             if (!tr.T1.chek_time())
                 throw inv_time;
             str.clear();
@@ -137,7 +136,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
             {
                 if (!chek(in, str))
                     throw inv_time;
-                tr.T2 = get_time(str);
+                tr.T2.get_time(str);
                 if (!tr.T2.chek_time() || tr.T2 == tr.T1)
                     throw inv_time;
                 else
