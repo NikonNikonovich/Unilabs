@@ -50,7 +50,7 @@ struct Time
             return false;
         return true;
     }
-    Time get_time(std::string str)
+    Time get_time(std::string& str)
     {
         h = std::stoi(str.substr(0, 2));
         m = std::stoi(str.substr(3, 2));
