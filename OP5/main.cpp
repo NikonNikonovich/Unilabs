@@ -111,7 +111,6 @@ std::istream& operator>> (std::istream& in, Trip& tr)
     {
         try
         {
-            std::cout << "\n-----------\n";
             std::string str;
             tr.point_1 = ask_str(in);
 
@@ -195,13 +194,13 @@ void timetable(std::istream& in, std::ostream& out)
         << " Departure point\n Time (hh:mm)\n"
         << " Arrival point\n Time (hh:mm)\n\n";
 
-    std::cout << "\n Input:\n";
+    out << "\n Input:\n";
     for (int i = 0; i < n; ++i)
     {
         in >> trips[i];
         differences[i] = trips[i].dif_time();
     }
-    std::cout << "\n Output:\n";
+    out << "\n Output:\n";
     for (int i = 0; i < n; ++i)
         out << '\n' << trips[i] << "\nTrip time: " << differences[i] << '\n';
     delete[] trips, differences;
