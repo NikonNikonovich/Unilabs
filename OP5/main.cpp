@@ -27,11 +27,20 @@
 const std::string error = " Wrong input, please try again \n\n";
 const std::string file_error = "\n Error. Unable to open the file!\n";
 const std::string inv_time = " Time is not really\n";
+const std::string numbers = "0123456789";
+
+std::string ask_str(std::istream& in);
+bool chek(std::istream& in, std::string& str);
 
 struct Time
 {
     int h, m;
     Time() : h(0), m(0) {}
+    Time(std::string& str)
+    {
+        h = std::stoi(str.substr(0, 2));
+        m = std::stoi(str.substr(3, 2));
+    }
     Time operator= (const Time& t)
     {
         h = t.h;
@@ -44,17 +53,29 @@ struct Time
             return true;
         return false;
     }
+    bool operator<(const Time& t)
+    {
+        if (h < t.h)
+            return true;
+        else
+            if (h == t.h && m < t.m)
+                return true;
+        return false;
+    }
+    bool operator>(const Time& t)
+    {
+        if (h > t.h)
+            return true;
+        else
+            if (h == t.h && m > t.m)
+                return true;
+        return false;
+    }
     bool chek_time() const
     {
         if (h < 0 || h > 23 || m < 0 || m > 59)
             return false;
         return true;
-    }
-    Time get_time(std::string& str)
-    {
-        h = std::stoi(str.substr(0, 2));
-        m = std::stoi(str.substr(3, 2));
-        return *this;
     }
     friend std::ostream& operator<< (std::ostream& out, const Time& t)
     {
@@ -86,24 +107,6 @@ public:
     friend std::istream& operator>> (std::istream&, Trip&);
     friend std::ostream& operator<< (std::ostream&, const Trip&);
 };
-std::string ask_str(std::istream& in)
-{
-    std::string str;
-    while (str.length() == 0)
-        std::getline(in, str);
-    return str;
-}
-bool chek(std::istream& in, std::string& str)
-{
-    while (str.length() == 0)
-        std::getline(in, str);
-    if (str.length() != 5)
-        return false;
-    for (int i = 0; i < str.length(); ++i)
-        if ((str[i] > '9' || str[i] < '0') && str[2] != ':')
-            return false;
-    return true;
-}
 std::istream& operator>> (std::istream& in, Trip& tr)
 {
     bool krit = true;
@@ -116,9 +119,10 @@ std::istream& operator>> (std::istream& in, Trip& tr)
 
             if (!chek(in, str))
                 throw inv_time;
-            tr.T1.get_time(str);
-            if (!tr.T1.chek_time())
+            Time T(str);
+            if (!T.chek_time())
                 throw inv_time;
+            tr.T1 = T;
             str.clear();
 
             bool cont = true;
@@ -135,11 +139,12 @@ std::istream& operator>> (std::istream& in, Trip& tr)
             {
                 if (!chek(in, str))
                     throw inv_time;
-                tr.T2.get_time(str);
-                if (!tr.T2.chek_time() || tr.T2 == tr.T1)
+                Time T(str);
+                if (!T.chek_time() || T < tr.T1)
                     throw inv_time;
                 else
                     cont = true;
+                tr.T2 = T;
             }
             krit = false;
         }
@@ -157,14 +162,27 @@ std::ostream& operator<< (std::ostream& out, const Trip& tr)
         << tr.point_2 << '\n' << tr.T2;
     return out;
 }
+std::string ask_str(std::istream& in)
+{
+    std::string str;
+    while (str.length() == 0)
+        std::getline(in, str);
+    return str;
+}
+bool chek(std::istream& in, std::string& str)
+{
+    str = ask_str(in);
+    if (str.length() != 5 || str[2] != ':' || str.find_first_not_of(numbers) != 2)
+        return false;
+    return true;
+}
 bool wrong_input(std::string input)
 {
     bool invalid = false;
     if (input.length() == 0)
         invalid = true;
-    for (int i = 0; i < input.length(); ++i)
-        if (input[i] > '9' || input[i] < '0')
-            invalid = true;
+    if (input.find_first_not_of(numbers) != std::string::npos)
+        invalid = true;
     if (invalid)
         std::cout << error;
     if (input.length() >= 9 && !invalid)
@@ -200,6 +218,7 @@ void timetable(std::istream& in, std::ostream& out)
         in >> trips[i];
         differences[i] = trips[i].dif_time();
     }
+
     out << "\n Output:\n";
     for (int i = 0; i < n; ++i)
         out << '\n' << trips[i] << "\nTrip time: " << differences[i] << '\n';
@@ -214,11 +233,11 @@ int main()
         << " 3 - { input.txt / cout }\n"
         << " 4 - { input.txt / output.txt }\n";
     std::string method;
-    while (method != "1" && method != "2" && method != "3" && method != "4")
+    while (method.length() != 1 || method[0] < '0' || method[0] > '4')
     {
         std::cout << " > ";
         std::getline(std::cin, method);
-        if (method != "1" && method != "2" && method != "3" && method != "4")
+        if (method.length() != 1 || method[0] < '0' || method[0] > '4')
             std::cout << error;
     }
     std::ofstream fout;
