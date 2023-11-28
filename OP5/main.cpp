@@ -134,8 +134,8 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 else
                     cont = false;
             }
-
-            while (!cont)
+            cont = true;
+            while (cont)
             {
                 if (!chek(in, str))
                     throw inv_time;
@@ -143,7 +143,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 if (!T.chek_time() || T < tr.T1)
                     throw inv_time;
                 else
-                    cont = true;
+                    cont = false;
                 tr.T2 = T;
             }
             krit = false;
