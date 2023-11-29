@@ -26,21 +26,26 @@
 
 const std::string error = " Wrong input, please try again \n\n";
 const std::string file_error = "\n Error. Unable to open the file!\n";
-const std::string inv_time = " Time is not really\n";
+const std::string inv_time = " Time is not really\n Aborting\n";
 const std::string numbers = "0123456789";
 
 std::string ask_str(std::istream& in);
 bool chek(std::istream& in, std::string& str);
 
-struct Time
+class Time
 {
+private:
     int h, m;
+public:
     Time() : h(0), m(0) {}
+    Time(int h, int m) : h(h), m(m) {}
     Time(std::string& str)
     {
         h = std::stoi(str.substr(0, 2));
         m = std::stoi(str.substr(3, 2));
     }
+    int get_h() const { return h; }
+    int get_m() const { return m; }
     Time operator= (const Time& t)
     {
         h = t.h;
@@ -92,16 +97,16 @@ private:
 public:
     Time dif_time() const
     {
-        Time t;
-        t.h = T2.h - T1.h;
-        t.m = T2.m - T1.m;
-        if (t.m < 0)
+        int h = T2.get_h() - T1.get_h();
+        int m = T2.get_m() - T1.get_m();
+        if (m < 0)
         {
-            t.m += 60;
-            t.h--;
+            m += 60;
+            h--;
         }
-        if (t.h < 0)
-            t.h += 24;
+        if (h < 0)
+            h += 24;
+        Time t(h, m);
         return t;
     }
     friend std::istream& operator>> (std::istream&, Trip&);
@@ -134,8 +139,8 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 else
                     cont = false;
             }
-            cont = true;
-            while (cont)
+
+            while (!cont)
             {
                 if (!chek(in, str))
                     throw inv_time;
@@ -143,7 +148,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 if (!T.chek_time() || T < tr.T1)
                     throw inv_time;
                 else
-                    cont = false;
+                    cont = true;
                 tr.T2 = T;
             }
             krit = false;
@@ -157,8 +162,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
 }
 std::ostream& operator<< (std::ostream& out, const Trip& tr)
 {
-    out << "\n-----------\n"
-        << tr.point_1 << '\n' << tr.T1
+    out << tr.point_1 << '\n' << tr.T1
         << tr.point_2 << '\n' << tr.T2;
     return out;
 }
