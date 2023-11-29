@@ -1,0 +1,36 @@
+
+ Output:
+
+ >>>  12.12
+
+ Number of train trips: 2
+Moscow
+05:35
+Saint-Petersberg
+11:11
+
+ Trip time: 05:36
+
+Vladivostok
+21:28
+Khabarovsk
+23:42
+
+ Trip time: 02:14
+
+
+ The shortest trip on 12.12 > Vladivostok---Khabarovsk
+ Output:
+
+ >>>  08.01
+
+ Number of train trips: 1
+Samara
+08:00
+Syzran
+10:30
+
+ Trip time: 02:30
+
+
+ The shortest trip on 08.01 > Samara---Syzran
