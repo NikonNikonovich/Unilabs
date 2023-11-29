@@ -68,14 +68,6 @@ int ask_number(std::istream& in)
     }
     return std::stoi(input);
 }
-int hour(std::string*& trips, int i)
-{
-    return std::stoi(trips[i].substr(0, 2));
-}
-int min(std::string*& trips, int i)
-{
-    return std::stoi(trips[i].substr(3, 2));
-}
 class Time
 {
 private:
