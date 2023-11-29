@@ -43,6 +43,8 @@ public:
     {
         h = std::stoi(str.substr(0, 2));
         m = std::stoi(str.substr(3, 2));
+        if (!chek_time())
+            throw inv_time;
     }
     int get_h() const { return h; }
     int get_m() const { return m; }
@@ -125,8 +127,6 @@ std::istream& operator>> (std::istream& in, Trip& tr)
             if (!chek(in, str))
                 throw inv_time;
             Time T(str);
-            if (!T.chek_time())
-                throw inv_time;
             tr.T1 = T;
             str.clear();
 
@@ -145,7 +145,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 if (!chek(in, str))
                     throw inv_time;
                 Time T(str);
-                if (!T.chek_time() || T < tr.T1)
+                if (T < tr.T1)
                     throw inv_time;
                 else
                     cont = true;
@@ -176,7 +176,7 @@ std::string ask_str(std::istream& in)
 bool chek(std::istream& in, std::string& str)
 {
     str = ask_str(in);
-    if (str.length() != 5 || str[2] != ':' || str.find_first_not_of(numbers) != 2)
+    if (str.length() != 5 || str[2] != ':' || str.find_first_not_of(numbers) != 2 || str.find_last_not_of(numbers) != 2)
         return false;
     return true;
 }
