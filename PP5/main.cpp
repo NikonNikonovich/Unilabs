@@ -87,6 +87,8 @@ public:
     {
         h = std::stoi(str.substr(0, 2));
         m = std::stoi(str.substr(3, 2));
+        if (!chek_time())
+            throw inv_time;
     }
     Time operator= (const Time& t)
     {
@@ -171,8 +173,6 @@ std::istream& operator>> (std::istream& in, Trip& tr)
             if (!chek(in, str, ':'))
                 throw inv_time;
             Time T(str);
-            if (!T.chek_time())
-                throw inv_time;
             tr.T1 = T;
             str.clear();
 
@@ -191,7 +191,7 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 if (!chek(in, str, ':'))
                     throw inv_time;
                 Time T(str);
-                if (!T.chek_time() || T < tr.T1)
+                if (T < tr.T1)
                     throw inv_time;
                 else
                     cont = true;
@@ -222,6 +222,8 @@ public:
     {
         day = std::stoi(str.substr(0, 2));
         month = std::stoi(str.substr(3, 2));
+        if (!chek_date())
+            throw inv_time;
     }
     Date operator= (const Date& d)
     {
@@ -231,7 +233,7 @@ public:
     }
     bool chek_date() const
     {
-        if (month < 1 && month > 12)
+        if (month < 1 || month > 12)
             return false;
         switch (month)
         {
@@ -281,8 +283,8 @@ public:
         return tr[a].get_dep_point() + "---" + tr[a].get_ar_point();
     }
     int get_size() const { return num; }
-    Trip trip(int i) { return tr[i]; }
-    Date get_date() { return d; }
+    Trip trip(int i) const { return tr[i]; }
+    Date get_date() const { return d; }
     friend std::istream& operator>> (std::istream&, Info&);
     friend std::ostream& operator<< (std::ostream&, const Info&);
 };
@@ -297,8 +299,6 @@ std::istream& operator>> (std::istream& in, Info& i)
             if (!chek(in, str, '.'))
                 throw inv_time;
             Date d(str);
-            if (!d.chek_date())
-                throw inv_time;
             i.d = d;
 
             i.num = ask_number(in);
@@ -329,7 +329,7 @@ void timetable(std::istream& in, std::ostream& out)
     std::string* shortests_trips = new std::string[n];
     std::cout << "\n ## Input format\n\n"
         << " Date (dd.mm)\n"
-        << " Number of trips\n"
+        << " Number of trips\n\n"
         << " # Trip format\n"
         << " Departure point\n Time (hh:mm)\n"
         << " Arrival point\n Time (hh:mm)\n\n";
