@@ -24,8 +24,9 @@
 
 const std::string error = " Wrong input, please try again \n\n";
 const std::string file_error = "\n Error. Unable to open the file!\n";
-const std::string inv_time = " Time is not really\n Aborting\n";
+const std::string inv_time = " Time is not really!\n";
 const std::string numbers = "0123456789";
+const std::string dates = "\n Input the number of dates: ";
 
 std::string ask_str(std::istream& in)
 {
@@ -34,14 +35,14 @@ std::string ask_str(std::istream& in)
         std::getline(in, str);
     return str;
 }
-bool chek(std::istream& in, std::string& str, char ch)
+bool chek(std::istream& in, std::string& str, const char& ch)
 {
     str = ask_str(in);
     if (str.length() != 5 || str[2] != ch || str.find_first_not_of(numbers) != 2 || str.find_last_not_of(numbers) != 2)
         return false;
     return true;
 }
-bool wrong_input(std::string input)
+bool wrong_input(const std::string& input)
 {
     bool invalid = false;
     if (input.length() == 0)
@@ -74,14 +75,15 @@ private:
     int h, m;
 public:
     Time() : h(0), m(0) {}
-    Time(int h, int m) : h(h), m(m) {}
-    Time(std::string& str)
+    Time(const int& h, const int& m) : h(h), m(m) {}
+    Time(const std::string& str)
     {
         h = std::stoi(str.substr(0, 2));
         m = std::stoi(str.substr(3, 2));
         if (!chek_time())
             throw inv_time;
     }
+    Time(const Time& t) : h(t.h), m(t.m) {}
     Time operator= (const Time& t)
     {
         h = t.h;
@@ -177,8 +179,8 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 else
                     cont = false;
             }
-
-            while (!cont)
+            cont = true;
+            while (cont)
             {
                 if (!chek(in, str, ':'))
                     throw inv_time;
@@ -186,14 +188,14 @@ std::istream& operator>> (std::istream& in, Trip& tr)
                 if (T < tr.T1)
                     throw inv_time;
                 else
-                    cont = true;
+                    cont = false;
                 tr.T2 = T;
             }
             krit = false;
         }
-        catch (const std::string inv_time)
+        catch (const std::string& inv_time)
         {
-            std::cout << inv_time << "\n\n";
+            std::cout << inv_time << " Reset Trip input\n\n";
         }
     }
     return in;
@@ -209,8 +211,8 @@ class Date
 private:
     int month, day;
 public:
-    Date() : day(1), month(1) {}
-    Date(std::string str)
+    Date() : day(0), month(0) {}
+    Date(std::string& str)
     {
         day = std::stoi(str.substr(0, 2));
         month = std::stoi(str.substr(3, 2));
@@ -274,8 +276,8 @@ public:
         }
         return tr[a].get_dep_point() + "---" + tr[a].get_ar_point();
     }
-    int get_size() const { return num; }
-    Trip trip(int i) const { return tr[i]; }
+    int get_num() const { return num; }
+    Trip trip(const int& i) const { return tr[i]; }
     Date get_date() const { return d; }
     friend std::istream& operator>> (std::istream&, Info&);
     friend std::ostream& operator<< (std::ostream&, const Info&);
@@ -299,17 +301,16 @@ std::istream& operator>> (std::istream& in, Info& i)
                 in >> i.tr[q];
             krit = false;
         }
-        catch (const std::string inv_time)
+        catch (const std::string& inv_time)
         {
-            std::cout << inv_time << "\n\n";
+            std::cout << inv_time << " Reset Info input\n\n";
         }
     }
     return in;
 }
 std::ostream& operator<< (std::ostream& out, const Info& i)
 {
-    out << "\n Output:\n"
-        << "\n >>>  " << i.d << '\n'
+    out << "\n >>>  " << i.d << '\n'
         << "\n Number of train trips: " << i.num << '\n';
     return out;
 }
@@ -329,24 +330,25 @@ void timetable(std::istream& in, std::ostream& out)
     for (int q = 0; q < n; ++q)
     {
         in >> inf[q];
-        int size = inf[q].get_size();
+        int size = inf[q].get_num();
         differences[q] = new Time[size];
         for (int a = 0; a < size; ++a)
             differences[q][a] = inf[q].trip(a).dif_time();
         shortests_trips[q] = inf[q].shortest_trip(differences[q]);
     }
-
+    out << "\n Output:\n";
     for (int q = 0; q < n; ++q)
     {
         out << inf[q];
-        int size = inf[q].get_size();
+        int size = inf[q].get_num();
         for (int a = 0; a < size; ++a)
             out << inf[q].trip(a) << "\n Trip time: " << differences[q][a] << '\n';
-        out << "\n The shortest trip on " << inf[q].get_date() << " > " << shortests_trips[q];
-        inf[q].~Info();
+        out << "\n The shortest trip on " << inf[q].get_date() << " > " << shortests_trips[q] << '\n';
         delete[] differences[q];
     }
-    delete[] differences, inf, shortests_trips;
+    delete[] differences;
+    delete[] inf;
+    delete[] shortests_trips;
 }
 int main()
 {
@@ -369,7 +371,7 @@ int main()
     switch (method[0])
     {
     case '1':
-        std::cout << "\n Input the number of dates: ";
+        std::cout << dates;
         timetable(std::cin, std::cout);
         break;
     case '2':
@@ -378,7 +380,7 @@ int main()
             std::cout << file_error;
         else
         {
-            std::cout << "\n Input the number of dates: ";
+            std::cout << dates;
             timetable(std::cin, fout);
         }
         fout.close();
